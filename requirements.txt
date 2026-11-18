@@ -1,10 +1,10 @@
-# Minimum versions are the ones installed when this file was checked (Python 3.13.2).
+# Pinned with == to the versions installed when this file was checked (Python 3.13.2).
 # Scripts: src/preprocessing.py, src/train.py, src/generate_plots.py
-pandas>=3.0
-numpy>=2.4
-scikit-learn>=1.6
-statsmodels>=0.14
-seaborn>=0.13
-matplotlib>=3.10
+pandas==3.0.1
+numpy==2.4.2
+scikit-learn==1.6.1
+statsmodels==0.14.6
+seaborn==0.13.2
+matplotlib==3.10.9
 # Chi-square and Spearman screening (src/train.py) and the notebook
-scipy>=1.17
+scipy==1.17.1

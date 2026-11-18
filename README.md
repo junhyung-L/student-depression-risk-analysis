@@ -14,6 +14,8 @@ accuracy and 0.8255 ± 0.0431 weighted F1, against 0.5020 ± 0.0024 accuracy for
 always predicting the majority label. On a 101-record holdout (seeded 80/20
 split) the model reaches 0.8614 accuracy and 0.8609 weighted F1.
 
+**Role.** I wrote the code, analysis, and documentation in this repository.
+
 **Scope.** Features are screened on training rows only, inside every
 cross-validation fold; coefficients are associations, not clinical risk. Data
 is included; `python src\train.py` reprints the metrics and writes
@@ -128,3 +130,7 @@ doc/                  project report (Korean PDF)
 
 - [Portfolio case study](PORTFOLIO.md)
 - [Architecture](docs/ARCHITECTURE.md)
+
+## License
+
+No open-source license: the code and documents are public for review; reuse requires permission.
