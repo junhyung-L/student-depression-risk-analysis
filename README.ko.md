@@ -6,6 +6,8 @@
 
 **결과.** 101건 holdout(seed 고정 80/20 분할)에서 정확도 0.9010, weighted F1 0.9009를 기록했습니다. 항상 다수 라벨로 예측하면 정확도 0.5248입니다.
 
+**범위.** 무작위 분할 한 번이고 변수를 분할 전 502건 전체에서 골랐으므로 holdout 성능이 낙관적일 수 있으며, 계수는 연관성일 뿐 임상적 위험이 아닙니다. 데이터는 포함되어 있으며, `python src\train.py`로 지표를 다시 출력하고 `results/model_summary.txt`를 생성할 수 있습니다.
+
 [English](README.md) · [사례 연구](PORTFOLIO.ko.md) · [모델 요약](results/model_summary.txt)
 
 ## 데이터

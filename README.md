@@ -13,6 +13,11 @@ inspect, rather than to maximize a score with an opaque model.
 0.9010 accuracy and 0.9009 weighted F1, against 0.5248 accuracy for always
 predicting the majority label.
 
+**Scope.** One random split, with features chosen on all 502 rows before
+splitting, so the holdout may be optimistic; coefficients are associations, not
+clinical risk. Data is included; `python src\train.py` reprints the metrics and
+writes `results/model_summary.txt`.
+
 [한국어](README.ko.md) · [Case study](PORTFOLIO.md) · [Model summary](results/model_summary.txt)
 
 ## Data
