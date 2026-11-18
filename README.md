@@ -1,17 +1,35 @@
-# Student Depression-Risk Classification
+# Student Depression-Label Classification from Survey Data
 
-[한국어](README.ko.md)
+[한국어](README.ko.md) · [Case study](PORTFOLIO.md)
 
-> [Project details](PORTFOLIO.md)
-
-An exploratory, non-clinical classification project using a 502-row student
-survey dataset. The maintained model uses four selected lifestyle and stress
-variables in logistic regression to keep the prediction path interpretable.
+An exploratory logistic-regression analysis of which lifestyle and stress
+responses go with a Yes/No depression label in a 502-respondent student survey.
+Final project for a Programming Languages course at Incheon National
+University (November to December 2024).
 
 > This project is for analytical exploration only. It is not a diagnostic tool
 > and must not be used for clinical or automated high-stakes decisions.
 
-## Analysis flow
+**Why it matters:** survey data on mental health is small and sensitive, so the
+aim is to find the few responses that carry the signal, with coefficients a
+reader can inspect, rather than to maximise a score with an opaque model.
+
+**Result:** four survey variables in a logistic regression reach **0.9010
+accuracy** and **0.90 weighted F1** on a 101-record holdout (seeded 80/20
+split), against **0.5248** for always predicting the majority label on the same
+holdout. This is one split on one survey sample, not clinical performance.
+
+## Data
+
+- `data/Depression Student Dataset.csv`: 502 rows, 11 columns, no missing
+  cells; labels are balanced (252 Yes, 250 No). Source: the
+  [Kaggle Depression Student Dataset](https://www.kaggle.com/datasets/ikynahidwin/depression-student-dataset/data),
+  as cited in the analysis notebook.
+- Fields: gender, age, academic pressure, study satisfaction, sleep duration,
+  dietary habits, suicidal-thought history, study hours, financial stress,
+  family history of mental illness, and the depression label.
+
+## Approach
 
 ```mermaid
 flowchart LR
@@ -22,21 +40,46 @@ flowchart LR
     E --> F[Accuracy, classification report,<br/>confusion matrix, and p-values]
 ```
 
-## Implemented method
-
 - `src/preprocessing.py` encodes the `Depression` target, three ordinal fields,
   and five categorical fields.
-- `src/train.py` selects dietary habits, suicidal-thought history, academic
-  pressure, and financial stress; it fits scikit-learn logistic regression and
-  a statsmodels Logit model for coefficient/p-value inspection.
+- `src/train.py` uses dietary habits, suicidal-thought history, academic
+  pressure, and financial stress; it fits scikit-learn logistic regression for
+  metrics and a statsmodels Logit model for coefficients and p-values.
 - `src/generate_plots.py` produces Spearman, countplot, and learning-curve
   figures.
 
-The maintained scripts were rerun on 2026-08-20 with the included data and
-configured seed. The saved holdout result is **0.9010 accuracy** (101 test
-records) and **0.90 weighted F1**; the confusion matrix is `[[42, 6], [4, 49]]`
-([`results/model_summary.txt`](results/model_summary.txt)). This is a single
-holdout result, not an external-validation or clinical-performance estimate.
+Logistic regression was chosen over more flexible models so every prediction
+can be traced to four coefficients; no other model was compared. The notebook
+kept the categorical fields with chi-square p<0.05 against the label (dietary
+habits, suicidal-thought history) and the ordinal fields with Spearman |ρ| of
+at least 0.3 (academic pressure 0.48, financial stress 0.30).
+
+## Results
+
+| Model | Features | Accuracy | Weighted F1 | Setting |
+|---|---|---:|---:|---|
+| Majority label ("Yes") | none | 0.5248 | - | Same 101-record holdout (53 of 101 positive) |
+| Logistic regression | 4 selected | 0.9010 | 0.90 | Seeded 80/20 split, not stratified |
+
+The confusion matrix is `[[42, 6], [4, 49]]`: 49 of 53 positive and 42 of 48
+negative labels correct. All four Logit coefficients have p<0.001 in the
+training summary. The maintained scripts were rerun on 2026-08-20 with the
+included data; full output is in
+[`results/model_summary.txt`](results/model_summary.txt). The baseline row is
+derived from that file's class supports.
+
+## What the result does and does not show
+
+- One random split, not repeated or external validation; no confidence
+  interval, calibration, or subgroup analysis. Training accuracy in the
+  notebook is 0.8354, below the 0.9010 holdout figure, which suggests a
+  favourable split.
+- The four features were selected with tests on all 502 rows before the split,
+  so the holdout is not fully independent of feature selection and the
+  accuracy may be optimistic.
+- Suicidal-thought history overlaps with the construct being labelled and has
+  the largest coefficient; how much accuracy depends on it was not tested.
+- Associations in one survey sample, not causes or clinical risk.
 
 ## Retained visual evidence
 
@@ -53,20 +96,37 @@ descriptive view of the study sample, not a diagnostic rule.*
 
 ![Learning curve for the maintained logistic-regression workflow](results/figures/learning_curve.png)
 
-*Figure 3. Training and cross-validation accuracy across training-set sizes.
-It is a stability check for this small dataset, separate from the saved
+*Figure 3. Training and 5-fold cross-validation accuracy across training-set
+sizes. It is a stability check for this small dataset, separate from the saved
 101-record holdout result above.*
 
 ## Run
 
+Checked with Python 3.13.2: the scripts compile. They were not rerun for this
+README, so `results/model_summary.txt` is still the 2026-08-20 output.
+
 ```powershell
+pip install -r requirements.txt
 python src\preprocessing.py
 python src\train.py
 python src\generate_plots.py
 ```
 
+`src/train.py` prints the metrics and writes `results/model_summary.txt`;
+`src/generate_plots.py` writes five figures to `results/figures/`.
 `src/config.py` centralizes the data path, output directory, split fraction,
-seed, and selected features. `src/train.py` creates `results/` automatically.
+seed, and selected features.
+
+## Repository layout
+
+```text
+src/                  preprocessing, training, plotting, shared config
+data/                 survey CSV
+results/              model summary and figures from the maintained scripts
+notebooks/            original exploratory notebook with saved outputs
+doc/                  project report (Korean PDF)
+images/               duplicate copies of results/figures/
+```
 
 ## Documentation
 

@@ -1,0 +1,10 @@
+# Minimum versions are the ones installed when this file was checked (Python 3.13.2).
+# Scripts: src/preprocessing.py, src/train.py, src/generate_plots.py
+pandas>=3.0
+numpy>=2.4
+scikit-learn>=1.6
+statsmodels>=0.14
+seaborn>=0.13
+matplotlib>=3.10
+# Notebook only: chi-square and Spearman tests
+scipy>=1.17

@@ -2,50 +2,86 @@
 
 [English](PORTFOLIO.md) | [한국어](PORTFOLIO.ko.md)
 
-## Overview
+## Summary
 
-This project explores associations between a student-survey depression label and
-lifestyle or academic variables. It is not a diagnostic model. Logistic
-regression was chosen so predictive output could be examined alongside
-coefficients and p-values.
+A final project for a Programming Languages course at Incheon National
+University (November to December 2024). It explores which lifestyle and
+academic variables go with a depression label in a 502-row student survey. It
+is not a diagnostic model. A four-variable logistic regression reaches 0.9010
+accuracy and 0.90 weighted F1 on a 101-record holdout, against 0.5248 for the
+majority label, with statsmodels coefficients and p-values kept beside the
+score.
 
-## Data and approach
+## Challenge
 
-The included survey has 502 rows. After encoding mixed responses and reviewing
-exploratory associations, the maintained model uses dietary habits,
-suicidal-thought history, academic pressure, and financial stress. The
-workflow uses an 80/20 split with seed 42, then runs scikit-learn logistic
-regression for metrics and statsmodels Logit for inference output.
+The sample is a few hundred rows, the variables are sensitive, and the label
+is a single survey answer rather than a clinical assessment. A high score on
+such data is easy to over-read, so the work had to keep the path from
+variables to prediction inspectable and say plainly what a single split can
+and cannot support.
+
+## Decisions
+
+**1. Logistic regression as the model.**
+Options: tree ensembles or other flexible classifiers, or a logistic
+regression. Choice: scikit-learn logistic regression for metrics, plus a
+statsmodels Logit on the same training rows for coefficients and p-values.
+Why: with 502 rows and sensitive variables, the reader should be able to see
+which responses drive each prediction. Cost: no interactions or non-linear
+effects, and no other model was run, so what this choice gave up is unknown.
+
+**2. Four variables chosen by simple tests.**
+Options: all ten survey variables, a regularised model that selects
+variables, or test-based selection. Choice: keep categorical fields with
+chi-square p<0.05 against the label (dietary habits, suicidal-thought history)
+and ordinal fields with Spearman |ρ| of at least 0.3 (academic pressure 0.48,
+financial stress 0.30). Why: a short, explainable model. Cost: the tests ran
+on all 502 rows before the split, so the holdout is not fully independent of
+selection, and post-selection p-values are optimistic.
+
+**3. Encoding.**
+Options: one-hot encoding for nominal fields, or integer label encoding.
+Choice: label encoding for categorical fields and an ordinal encoder for the
+1-5 scales. Why: it keeps one coefficient per variable. Cost: dietary habits
+becomes 0-2 in alphabetical order (Healthy, Moderate, Unhealthy), which
+happens to match a healthy-to-unhealthy trend; that order is a coincidence,
+and one-hot encoding was not compared.
 
 ## Results
 
-The retained rerun records 0.9010 accuracy and 0.90 weighted F1 on 101 holdout
-records, with confusion matrix `[[42, 6], [4, 49]]`. All four retained Logit
-features have p<0.001 in the training summary. These are survey-sample
-associations, not causal or clinical findings.
+| Model | Features | Accuracy | Weighted F1 | Setting |
+|---|---|---:|---:|---|
+| Majority label ("Yes") | none | 0.5248 | - | Same 101-record holdout (53 of 101 positive) |
+| Logistic regression | 4 selected | 0.9010 | 0.90 | Seeded 80/20 split, not stratified |
 
-## What this demonstrates
+The confusion matrix `[[42, 6], [4, 49]]` means 49 of 53 positive and 42 of 48
+negative labels were correct on this split. All four Logit coefficients have
+p<0.001 in the training summary; suicidal-thought history has the largest
+(3.16). The labels are nearly balanced (252 Yes, 250 No), so accuracy is a
+reasonable headline here.
 
-The project keeps feature selection, holdout metrics, and coefficient review in
-one path rather than presenting a single opaque score. It also generates
-correlation, response-distribution, and learning-curve views for context.
+## What the result does not show
 
-## Limitations
+- Not clinical sensitivity, fairness, or individual risk. Weighted F1 is a
+  support-weighted average on one split.
+- Not a stable estimate: training accuracy in the notebook is 0.8354, below
+  the holdout figure, which suggests a favourable split; there is no repeated
+  validation or confidence interval.
+- Not causal: coefficients are associations inside this sample and this
+  variable selection. Suicidal-thought history overlaps with the construct
+  being labelled, and its share of the accuracy was not tested.
 
-There is no repeated stratified validation, calibration, subgroup analysis, or
-external validation. The work is exploratory only and must not inform diagnosis
-or automated intervention.
+## What I learned and would do next
+
+Selecting variables on the full dataset leaks into the holdout even when the
+model never sees it. Next: move selection inside the training folds, run
+repeated stratified cross-validation with intervals, report ROC/PR and
+calibration, test the model without suicidal-thought history, and compare
+one-hot encoding. Any use beyond education or exploration would also need
+external data, measurement-equivalence checks, and clinical review.
 
 ## Evidence
 
 - [`results/model_summary.txt`](results/model_summary.txt)
 - [`src/train.py`](src/train.py)
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-
-## Why an interpretable model is the reference point
-
-Survey variables are sensitive and the sample is only a few hundred rows, so complexity is not automatically a virtue. The project retains four predictors—dietary habits, suicidal-thought history, academic pressure, and financial stress—and runs scikit-learn metrics beside statsmodels coefficients and p-values. It therefore separates “how often did this split classify labels correctly?” from “which variable combination was associated with that result?”
-
-The retained confusion matrix, `[[42, 6], [4, 49]]`, means that 49 of 53 positive labels and 42 of 48 negative labels were correct on this one split. Weighted F1 of 0.90 is a support-weighted average; it is not a clinical sensitivity, a fairness result, or an individual risk statement. Coefficients reported at p<0.001 are associations inside this sample and selected specification, not causal evidence.
-
-Learning curves, response distributions, and correlation exploration are kept alongside the model so the conclusion does not rest on one score. Repeated stratified validation, external data, measurement-equivalence checks, and clinical review would be required before any use beyond educational or exploratory analysis.
