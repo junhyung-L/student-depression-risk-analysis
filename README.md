@@ -1,19 +1,19 @@
-# Student Depression-Label Classification from Survey Data
+# Student Depression Survey: Interpretable Logistic Regression
 
-[한국어](README.ko.md) · [Case study](PORTFOLIO.md)
+Four-variable logistic regression that shows which lifestyle and stress
+responses go with a Yes/No depression label in a 502-respondent student survey.
+Final project for a Programming Languages course at Incheon National University
+(November to December 2024). Exploratory analysis only; not a diagnostic tool.
 
-Explores which lifestyle and stress responses go with a Yes/No depression label
-in a 502-respondent student survey, using logistic regression. Final project
-for a Programming Languages course at Incheon National University (November to
-December 2024). Exploratory analysis only; not a diagnostic tool.
+**Problem.** Mental-health survey data is small and sensitive, so the aim is to
+find the few responses that carry the signal, with coefficients a reader can
+inspect, rather than to maximize a score with an opaque model.
 
-**Why it matters:** mental-health survey data is small and sensitive, so the
-aim is to find the few responses that carry the signal, with coefficients a
-reader can inspect, rather than to maximise a score with an opaque model.
+**Result.** On a 101-record holdout (seeded 80/20 split), the model reaches
+0.9010 accuracy and 0.9009 weighted F1, against 0.5248 accuracy for always
+predicting the majority label.
 
-**Result:** four survey variables in a logistic regression reach **0.9010
-accuracy** and **0.90 weighted F1** on a 101-record holdout (seeded 80/20
-split), against **0.5248** for always predicting the majority label.
+[한국어](README.ko.md) · [Case study](PORTFOLIO.md) · [Model summary](results/model_summary.txt)
 
 ## Data
 
@@ -44,41 +44,37 @@ flowchart LR
   figures.
 
 Logistic regression keeps every prediction traceable to four coefficients.
-Feature selection keeps the categorical fields with chi-square p<0.05 against
+Feature selection keeps the categorical fields with chi-square p < 0.05 against
 the label (dietary habits, suicidal-thought history) and the ordinal fields
-with Spearman |ρ| of at least 0.3 (academic pressure 0.48, financial stress
-0.30).
+with Spearman |ρ| of at least 0.3 after rounding to two decimals (academic
+pressure 0.48, financial stress 0.30).
 
 ## Results
 
 | Model | Features | Accuracy | Weighted F1 | Setting |
 |---|---|---:|---:|---|
-| Majority label ("Yes") | none | 0.5248 | - | Same 101-record holdout (53 of 101 positive) |
-| Logistic regression | 4 selected | 0.9010 | 0.90 | Seeded 80/20 split, not stratified |
+| Majority label ("Yes") | none | 0.5248 | – | Same 101-record holdout (53 of 101 positive) |
+| Logistic regression | 4 selected | 0.9010 | 0.9009 | Seeded 80/20 split, not stratified |
 
 Confusion matrix `[[42, 6], [4, 49]]`: 49 of 53 positive and 42 of 48 negative
-labels correct. All four Logit coefficients have p<0.001 in the training
-summary. Full output (scripts run on 2026-08-20 with the included data):
-[`results/model_summary.txt`](results/model_summary.txt); the baseline row is
-derived from its class supports.
+labels correct. All four Logit coefficients have p < 0.001 in the training
+summary. Full output: [`results/model_summary.txt`](results/model_summary.txt).
 
 ![Correlation of exploratory variables with the encoded depression label](results/figures/correlation_with_depression.png)
 
-*Figure 1. Exploratory correlations from the included survey data, used for
-feature review.*
+*Figure 1. Exploratory correlations from the survey data, used for feature
+review.*
 
 ![Depression-label counts by reported suicidal-thought history](results/figures/countplot_suicidal_thoughts.png)
 
 *Figure 2. Label distribution by one survey response (descriptive).*
 
-![Learning curve for the maintained logistic-regression workflow](results/figures/learning_curve.png)
+![Learning curve for the logistic-regression workflow](results/figures/learning_curve.png)
 
 *Figure 3. Training and 5-fold cross-validation accuracy across training-set
 sizes; a stability check separate from the 101-record holdout.*
 
-## Run
-
-Scripts compile under Python 3.13.2.
+## How to run
 
 ```powershell
 pip install -r requirements.txt
@@ -94,26 +90,22 @@ seed, and selected features.
 
 ## Limitations
 
-- Not for clinical or automated high-stakes decisions; associations in one survey sample, not causes or clinical risk.
-- One random split; no repeated or external validation, confidence interval, calibration, or subgroup analysis.
-- Notebook training accuracy (0.8354) is below the 0.9010 holdout figure, which suggests a favourable split.
+- Not for clinical or automated high-stakes decisions; the coefficients are associations in one survey sample, not causes or clinical risk.
+- One random split with no repeated validation or confidence interval; the notebook's training accuracy (0.8354) is below the 0.9010 holdout figure, which suggests a favorable split.
 - Features were selected on all 502 rows before the split, so holdout accuracy may be optimistic.
-- Suicidal-thought history overlaps with the labelled construct and has the largest coefficient; its share of the accuracy was not tested.
-- No other model was compared.
+- Suicidal-thought history overlaps with the labeled construct and has the largest coefficient; its share of the accuracy was not tested.
 
 ## Repository layout
 
 ```text
 src/                  preprocessing, training, plotting, shared config
 data/                 survey CSV
-results/              model summary and figures from the maintained scripts
+results/              model summary and figures
 notebooks/            original exploratory notebook with saved outputs
 doc/                  project report (Korean PDF)
-images/               duplicate copies of results/figures/
 ```
 
 ## Documentation
 
 - [Portfolio case study](PORTFOLIO.md)
-- [Project review](docs/PROJECT_REVIEW.md)
 - [Architecture](docs/ARCHITECTURE.md)
