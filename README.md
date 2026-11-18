@@ -2,29 +2,24 @@
 
 [한국어](README.ko.md) · [Case study](PORTFOLIO.md)
 
-An exploratory logistic-regression analysis of which lifestyle and stress
-responses go with a Yes/No depression label in a 502-respondent student survey.
-Final project for a Programming Languages course at Incheon National
-University (November to December 2024).
+Explores which lifestyle and stress responses go with a Yes/No depression label
+in a 502-respondent student survey, using logistic regression. Final project
+for a Programming Languages course at Incheon National University (November to
+December 2024). Exploratory analysis only; not a diagnostic tool.
 
-> This project is for analytical exploration only. It is not a diagnostic tool
-> and must not be used for clinical or automated high-stakes decisions.
-
-**Why it matters:** survey data on mental health is small and sensitive, so the
+**Why it matters:** mental-health survey data is small and sensitive, so the
 aim is to find the few responses that carry the signal, with coefficients a
 reader can inspect, rather than to maximise a score with an opaque model.
 
 **Result:** four survey variables in a logistic regression reach **0.9010
 accuracy** and **0.90 weighted F1** on a 101-record holdout (seeded 80/20
-split), against **0.5248** for always predicting the majority label on the same
-holdout. This is one split on one survey sample, not clinical performance.
+split), against **0.5248** for always predicting the majority label.
 
 ## Data
 
 - `data/Depression Student Dataset.csv`: 502 rows, 11 columns, no missing
   cells; labels are balanced (252 Yes, 250 No). Source: the
-  [Kaggle Depression Student Dataset](https://www.kaggle.com/datasets/ikynahidwin/depression-student-dataset/data),
-  as cited in the analysis notebook.
+  [Kaggle Depression Student Dataset](https://www.kaggle.com/datasets/ikynahidwin/depression-student-dataset/data).
 - Fields: gender, age, academic pressure, study satisfaction, sleep duration,
   dietary habits, suicidal-thought history, study hours, financial stress,
   family history of mental illness, and the depression label.
@@ -48,11 +43,11 @@ flowchart LR
 - `src/generate_plots.py` produces Spearman, countplot, and learning-curve
   figures.
 
-Logistic regression was chosen over more flexible models so every prediction
-can be traced to four coefficients; no other model was compared. The notebook
-kept the categorical fields with chi-square p<0.05 against the label (dietary
-habits, suicidal-thought history) and the ordinal fields with Spearman |ρ| of
-at least 0.3 (academic pressure 0.48, financial stress 0.30).
+Logistic regression keeps every prediction traceable to four coefficients.
+Feature selection keeps the categorical fields with chi-square p<0.05 against
+the label (dietary habits, suicidal-thought history) and the ordinal fields
+with Spearman |ρ| of at least 0.3 (academic pressure 0.48, financial stress
+0.30).
 
 ## Results
 
@@ -61,49 +56,29 @@ at least 0.3 (academic pressure 0.48, financial stress 0.30).
 | Majority label ("Yes") | none | 0.5248 | - | Same 101-record holdout (53 of 101 positive) |
 | Logistic regression | 4 selected | 0.9010 | 0.90 | Seeded 80/20 split, not stratified |
 
-The confusion matrix is `[[42, 6], [4, 49]]`: 49 of 53 positive and 42 of 48
-negative labels correct. All four Logit coefficients have p<0.001 in the
-training summary. The maintained scripts were rerun on 2026-08-20 with the
-included data; full output is in
-[`results/model_summary.txt`](results/model_summary.txt). The baseline row is
-derived from that file's class supports.
-
-## What the result does and does not show
-
-- One random split, not repeated or external validation; no confidence
-  interval, calibration, or subgroup analysis. Training accuracy in the
-  notebook is 0.8354, below the 0.9010 holdout figure, which suggests a
-  favourable split.
-- The four features were selected with tests on all 502 rows before the split,
-  so the holdout is not fully independent of feature selection and the
-  accuracy may be optimistic.
-- Suicidal-thought history overlaps with the construct being labelled and has
-  the largest coefficient; how much accuracy depends on it was not tested.
-- Associations in one survey sample, not causes or clinical risk.
-
-## Retained visual evidence
+Confusion matrix `[[42, 6], [4, 49]]`: 49 of 53 positive and 42 of 48 negative
+labels correct. All four Logit coefficients have p<0.001 in the training
+summary. Full output (scripts run on 2026-08-20 with the included data):
+[`results/model_summary.txt`](results/model_summary.txt); the baseline row is
+derived from its class supports.
 
 ![Correlation of exploratory variables with the encoded depression label](results/figures/correlation_with_depression.png)
 
-*Figure 1. Exploratory correlations from the included survey data. These
-associations informed feature review but do not establish clinical or causal
-relationships.*
+*Figure 1. Exploratory correlations from the included survey data, used for
+feature review.*
 
 ![Depression-label counts by reported suicidal-thought history](results/figures/countplot_suicidal_thoughts.png)
 
-*Figure 2. Observed label distribution by one survey response. This chart is a
-descriptive view of the study sample, not a diagnostic rule.*
+*Figure 2. Label distribution by one survey response (descriptive).*
 
 ![Learning curve for the maintained logistic-regression workflow](results/figures/learning_curve.png)
 
 *Figure 3. Training and 5-fold cross-validation accuracy across training-set
-sizes. It is a stability check for this small dataset, separate from the saved
-101-record holdout result above.*
+sizes; a stability check separate from the 101-record holdout.*
 
 ## Run
 
-Checked with Python 3.13.2: the scripts compile. They were not rerun for this
-README, so `results/model_summary.txt` is still the 2026-08-20 output.
+Scripts compile under Python 3.13.2.
 
 ```powershell
 pip install -r requirements.txt
@@ -116,6 +91,15 @@ python src\generate_plots.py
 `src/generate_plots.py` writes five figures to `results/figures/`.
 `src/config.py` centralizes the data path, output directory, split fraction,
 seed, and selected features.
+
+## Limitations
+
+- Not for clinical or automated high-stakes decisions; associations in one survey sample, not causes or clinical risk.
+- One random split; no repeated or external validation, confidence interval, calibration, or subgroup analysis.
+- Notebook training accuracy (0.8354) is below the 0.9010 holdout figure, which suggests a favourable split.
+- Features were selected on all 502 rows before the split, so holdout accuracy may be optimistic.
+- Suicidal-thought history overlaps with the labelled construct and has the largest coefficient; its share of the accuracy was not tested.
+- No other model was compared.
 
 ## Repository layout
 
