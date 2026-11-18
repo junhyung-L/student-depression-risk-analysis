@@ -4,14 +4,15 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import learning_curve
 try:
-    from .config import DATA_PATH, FEATURES, RESULTS_DIR
+    from .config import CATEGORICAL_CANDIDATES, DATA_PATH, NUMERIC_CANDIDATES, RESULTS_DIR
     from .preprocessing import load_and_preprocess_data
+    from .train import build_pipeline
 except ImportError:
-    from config import DATA_PATH, FEATURES, RESULTS_DIR
+    from config import CATEGORICAL_CANDIDATES, DATA_PATH, NUMERIC_CANDIDATES, RESULTS_DIR
     from preprocessing import load_and_preprocess_data
+    from train import build_pipeline
 
 def generate_and_save_plots(data_path: Path = DATA_PATH, images_path: Path | None = None):
     """Generate project figures from the configured survey dataset."""
@@ -64,12 +65,11 @@ def generate_and_save_plots(data_path: Path = DATA_PATH, images_path: Path | Non
     plt.savefig(images_path / 'countplot_suicidal_thoughts.png')
     plt.close()
     
-    # 5. Learning Curve
-    features = FEATURES
-    X = df[features]
+    # 5. Learning Curve (feature screening refitted inside each training subset)
+    X = df[CATEGORICAL_CANDIDATES + NUMERIC_CANDIDATES]
     y = df[target]
     
-    model = LogisticRegression()
+    model = build_pipeline()
     train_sizes, train_scores, test_scores = learning_curve(model, X, y, cv=5, scoring='accuracy', n_jobs=-1)
     
     train_mean = np.mean(train_scores, axis=1)
@@ -87,7 +87,7 @@ def generate_and_save_plots(data_path: Path = DATA_PATH, images_path: Path | Non
     plt.savefig(images_path / 'learning_curve.png')
     plt.close()
     
-    print("All plots generated and saved successfully in 'images/' folder.")
+    print(f"All plots generated and saved successfully in {images_path}")
 
 if __name__ == "__main__":
     generate_and_save_plots()

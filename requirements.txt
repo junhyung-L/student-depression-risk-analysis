@@ -6,5 +6,5 @@ scikit-learn>=1.6
 statsmodels>=0.14
 seaborn>=0.13
 matplotlib>=3.10
-# Notebook only: chi-square and Spearman tests
+# Chi-square and Spearman screening (src/train.py) and the notebook
 scipy>=1.17
